@@ -15,7 +15,7 @@
 
 ### Emulation
 
-`7z x Tamarin.7z` extracts the only provided file: `Tamarin.apk`. Usually importing an APK into Android Studio and running it in an emulator is trivial, but in this case it was not. Attempting to run it resulted in this error:
+`7z x Tamarin.7z` extracts the only provided file: `Tamarin.apk`. Usually importing an APK into Android Studio and running it in an emulator is no problem, but in this case it required some extra steps. Attempting to run it resulted in this error:
 
 ![abi.png](images/abi.png)
 
