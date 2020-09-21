@@ -80,18 +80,18 @@ if (array.Length != equations_arr.GetLength(0) * 4)
 ```
 // go through loop 22 times
 for (int j = 0; j < equations_arr.GetLength(0); j++)
-	{
-    // new list
-		List<uint> list2 = new List<uint>();
-    // create uint from four input characters
-		list2.Add(BitConverter.ToUInt32(array, j * 4));
-    // copy remaining elements from equations_arr
-		for (int k = 0; k < equations_arr.GetLength(1); k++)
-		{
-			list2.Add(equations_arr[j, k]);
-		}
-		list.Add(list2);
-	}
+{
+  // new list
+  List<uint> list2 = new List<uint>();
+  // create uint from four input characters
+  list2.Add(BitConverter.ToUInt32(array, j * 4));
+  // copy remaining elements from equations_arr
+  for (int k = 0; k < equations_arr.GetLength(1); k++)
+  {
+    list2.Add(equations_arr[j, k]);
+  }
+  list.Add(list2);
+}
 ```
 
 4. Send each list through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
