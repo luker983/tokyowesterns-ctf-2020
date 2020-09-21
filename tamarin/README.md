@@ -53,7 +53,7 @@ mono_unbundle Tamarin/lib/armeabi-v7a/libmonodroid_bundle_app.so dlls/
 
 Once the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
 
-![decompile.png](images/decompile.png)
+<div align="center"><img src="images/decompile.png"></div>
 
 ## Understanding The Source
 
@@ -170,4 +170,4 @@ Solving for the left-hand side of this equation gives the first four flag charac
 
 `TWCTF{Xm4r1n_15_4bl3_70_6en3r4t3_N471v3_C0d3_w17h_VS_3n73rpr153_bu7_17_c0n741n5_D07_N3t_B1n4ry}`
 
-![flag.png](images/flag.png)
+<div align="center"><img src="images/flag.png"></div>
