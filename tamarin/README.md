@@ -27,7 +27,7 @@ After doing some digging, I found this post: https://android-developers.googlebl
 
 So I downloaded the Android 11 developer preview, made a new emulator with an updated SDK and system image, and imported the APK:
 
-<div align="center"><img src="images/app.png" height="512"></div>
+<div align="center"><img src="images/app.png"></div>
 
 Submitting text changes the text to `Invalid`, suggesting that the goal of this challenge is to reverse engineer whatever validation function is checking input to recover the flag.
 
