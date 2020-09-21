@@ -17,7 +17,15 @@
 
 ![abi.png](images/abi.png)
 
+Stack Overflow question https://stackoverflow.com/q/24572052 addresses this. We need to create a new emulator with the ABI `armeabi-v7a`. Unfortunately, using this ABI on an x86 host is incredibly slow. I couldn't get the emulator to boot in a reasonable amount of time and the app was not usable. 
 
+After doing some digging, I found this post: https://android-developers.googleblog.com/2020/03/run-arm-apps-on-android-emulator.html
+
+> The new Android 11 system images are capable of translating ARM instructions to x86 without impacting the entire system. This allows the execution of ARM binaries for testing without the performance overhead of full ARM emulation.
+
+So I downloaded the Android 11 developer preview, made a new emulator with an updated SDK and system image, and imported the APK:
+
+![app.png](images/app.png)
 
 Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
 
