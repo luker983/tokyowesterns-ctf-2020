@@ -94,45 +94,79 @@ for (int j = 0; j < equations_arr.GetLength(0); j++)
 	}
 ```
 
-4. Send each list through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
+4. Send each list through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
 ```
 // Parallelize the processing of each list
 Parallel.ForEach(list, parallelOptions, delegate(List<uint> equation)
 {
   lock (lockObj)
-	{
+  {
     // random number generation
-		uint num = Func3();
+    uint num = Func3();
     // Stabilize num through many iterations of Func2()
-		for (int l = 0; l < 10000; l++)
-		{
+    for (int l = 0; l < 10000; l++)
+    {
       // arguments are list, num, and list.Count - 2 (33 - 2 == 31)
-			num = Func2(equation, num, equation.Count - 2);
-		}
+      num = Func2(equation, num, equation.Count - 2);
+    }
     // compare stabilized value with last value of list (equation[32])
-		checkResults.Add(num == equation[equation.Count - 1]);
-	}
+    checkResults.Add(num == equation[equation.Count - 1]);
+  }  
 });
 // all checks must pass for this to be the flag
 return checkResults.ToArray().All((bool x) => x);
 ```
 
-Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
+All of the interesting stuff is happening in `Func2()`, let's take a look.
 
-Turns out to be some normalizing of numbers. Since we know what the final number should be,
-we can reverse it:
+### `Func2()` And `Func1()` Walkthrough
 
-Function(coefficients, x, pos) = (coefficients[pos] * x^pos) + (coefficients[pos-1] * x^pos-1) + ...
+This function multiplies a value in the input list with the output of `Func1()` and add it to the recursive call of `Func2()` with coefficent index subtracted by one. 
+```
+private static uint Func2(List<uint> coefficients, uint x, int pos)
+{
+  // base case
+  if (pos == -1)
+  {
+    return 0u;
+  }
+  uint num = coefficients[pos] * Func1(x, pos);
+  return num + Func2(coefficients, x, pos - 1);
+}
+```
 
-We know what the result should be, so the flag integer is:
+We need to know what `Func1()` is doing to make sense of this. Luckily it's just a `pow` function!
 
-final_result - Function(coeffiecents, x, pos).
+```
+private static uint Func1(uint x, int n)
+{
+  // raise x to the nth power
+  uint num = 1u;
+  for (int i = 0; i < n; i++)
+  {
+    num *= x;
+  }
+  return num;
+}
+```
 
-Requires that function() exit when pos is 0 instead of -1.
+We know enough to turn this into an equation:
 
-Woo!
+`Func2(coefficients, x, pos) = coefficients[pos] * x^pos + coefficients[pos-1] * x^pos-1 + ... coefficients[0] * x^0`
 
+### Deriving The Flag
 
-Flag: `TWCTF{Xm4r1n_15_4bl3_70_6en3r4t3_N471v3_C0d3_w17h_VS_3n73rpr153_bu7_17_c0n741n5_D07_N3t_B1n4ry}`
+We know that `num` starts off as a randomly generated number that stabilizes over time. This number will be equal to the last value in the list. Let's plug the numbers we know into the `Func2()` equation, taking the first list as an example. Since the number stabilizes, we know that after some number of iterations the input `num` and output `num` are the same which is critical for solving this equation:
+
+```
+Func2(list, num, pos) = list[pos] * num^pos + list[pos-1] * num^pos-1 + ... coefficients[1] * num^1 + coefficients[0] * num^0
+Func2(first_list, 3903653528u, 31) = 3695085832u*3903653528u^31 + 3485949926u*3903653528u^30 + ... + 2921822136u*3903653528u + first_four_flag_chars*1
+3903653528u = 3695085832u*3903653528u^31 + 3485949926u*3903653528u^30 + ... + 2921822136u*3903653528u + first_four_flag_chars*1
+3903653528u - (3695085832u*3903653528u^31 + 3485949926u*3903653528u^30 + ... + 2921822136u*3903653528u) =  first_four_flag_chars
+```
+
+Solving for the left-hand side of this equation gives the first four flag characters! I modified the code a little bit to do this for every list and convert the integers back into characters. This was the result:
+
+`TWCTF{Xm4r1n_15_4bl3_70_6en3r4t3_N471v3_C0d3_w17h_VS_3n73rpr153_bu7_17_c0n741n5_D07_N3t_B1n4ry}`
 
 ![flag.png](images/flag.png)
