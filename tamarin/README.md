@@ -35,7 +35,7 @@ Now that the app's behavior is known, the validation function needs to be analyz
 
 ```
 $ file libaot-Tamarin.dll.so
-
+libaot-Tamarin.dll.so: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, stripped
 ```
 
 
