@@ -31,14 +31,25 @@ Submitting text changes the text to `Invalid`, suggesting that the goal of this 
 
 ## Decompilation
 
-Now that the app's behavior is known, the validation function needs to be analyzed. The `java` folder that Android Studio doesn't seem to contain anything useful. Athough it contains `mono` and `xamarin.android` directories. Xamarin and Mono are both .NET technologies, so the source of the program likely is not written in Java. The `cpp` directory is much more interesting. It contains many `.dll.so` files, one is named `libaot-Tamarin.dll.so`:
+Now that the app's behavior is known, the validation function needs to be analyzed. The `java` folder that Android Studio doesn't contain anything interesting besidess `mono` and `xamarin.android` directories. Xamarin and Mono are both .NET technologies, so the source of the program likely is not written in Java. The `cpp` directory is much more interesting. It contains many `.dll.so` files, one is named `libaot-Tamarin.dll.so`:
 
 ```
 $ file libaot-Tamarin.dll.so
 libaot-Tamarin.dll.so: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, stripped
 ```
 
+I was hopeful at this point and loaded it into Ghidra for analysis. After playing with it and trying the *ARM Aggressive Instruction Finder*, I still couldn't make sense of the disassembly/decompilation. However, it did seem like the validation function was in this file. 
 
+The next thing I tried was the Android Studio debugger. Tracing the Java/CPP calls worked while entering text, but whenever I would submit text to the app it would crash. 
+
+Eventually, I came across this post https://stackoverflow.com/questions/44097544/decompile-apk-built-with-xamarin/51760141 that suggested https://github.com/tjg1/mono_unbundle. 
+
+```
+apktool d Tamarin.apk
+mono_unbundle Tamarin/lib/armeabi-v7a/libmonodroid_bundle_app.so dlls/
+```
+
+Now that the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
 
 Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
 
