@@ -1,5 +1,5 @@
 # Tamarin
-
+[![Category Badge](https://img.shields.io/badge/Category-Reverse-BrightGreen.svg)](https://shields.io/)
 ## Problem
 
 [Tamarin.7z](./Tamarin.7z)
