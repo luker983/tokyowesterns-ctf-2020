@@ -31,7 +31,7 @@ So I downloaded the Android 11 developer preview, made a new emulator with an up
 
 Submitting text changes the text to `Invalid`, suggesting that the goal of this challenge is to reverse engineer whatever validation function is checking input to recover the flag.
 
-## Decompilation
+### Decompilation
 
 Now that the app's behavior is known, the validation function needs to be analyzed. The `java` folder that Android Studio doesn't contain anything interesting besidess `mono` and `xamarin.android` directories. Xamarin and Mono are both .NET technologies, so the source of the program likely is not written in Java. The `cpp` directory is much more interesting. It contains many `.dll.so` files, one is named `libaot-Tamarin.dll.so`:
 
@@ -55,11 +55,11 @@ Once the original DLLs have been extracted, they can be decompiled with a tool l
 
 <div align="center"><img src="images/decompile.png"></div>
 
-## Understanding The Source
+### Understanding The Source
 
 The source has been recovered. At this point it should be straightforward to figure out what's going on.
 
-### `Func4()` Walkthrough
+#### `Func4()` Walkthrough
 1. The input text is passed to `Func4()` to be validated.
 ```
 if (Check.Func4(((TextView)flagText).get_Text()))
@@ -120,7 +120,7 @@ return checkResults.ToArray().All((bool x) => x);
 
 All of the interesting stuff is happening in `Func2()`, let's take a look.
 
-### `Func2()` And `Func1()` Walkthrough
+#### `Func2()` And `Func1()` Walkthrough
 
 This function multiplies a value in the input list with the output of `Func1()` and add it to the recursive call of `Func2()` with coefficent index subtracted by one. 
 ```
