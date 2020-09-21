@@ -53,6 +53,27 @@ Now that the original DLLs have been extracted, they can be decompiled with a to
 
 ![decompile.png](images/decompile.png)
 
+## Understanding The Source
+
+The source has been recovered. At this point it should be straightforward to figure out what's going on.
+
+1. The input text is passed to `Func4()` to be validated.
+```
+if (Check.Func4(((TextView)flagText).get_Text()))
+{
+  ((TextView)flagText).set_Text("The flag is TWCTF{" + ((TextView)flagText).get_Text() + "}");
+}
+```
+
+2. `Func4()` verifies that the length of the input string is 88
+```
+// equations_arr.GetLength(0) is 22, 22 * 4 == 88
+if (array.Length != equations_arr.GetLength(0) * 4)
+{
+  return false;
+}
+```
+
 Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
 
 Turns out to be some normalizing of numbers. Since we know what the final number should be,
