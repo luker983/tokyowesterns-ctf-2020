@@ -77,7 +77,7 @@ if (array.Length != equations_arr.GetLength(0) * 4)
 }
 ```
 
-3. `Func4()` constructs 22 lists, each with 33 elements. The first element of each list is always a concatenation of the input bytes. For instance, `p@$$w0rd...` would turn into `list[0][0] = p@$$.ToUInt32(); list[1][0] = w0rd.ToUInt32();`. The next 32 elements come from a pre-defined array of integers called `equations_arr`
+3. 22 lists are constructed, each with 33 elements. The first element of each list is always a concatenation of the input bytes. For instance, `p@$$w0rd...` would turn into `list[0][0] = p@$$.ToUInt32(); list[1][0] = w0rd.ToUInt32();`. The next 32 elements come from a pre-defined array of integers called `equations_arr`
 ```
 // go through loop 22 times
 for (int j = 0; j < equations_arr.GetLength(0); j++)
@@ -95,7 +95,7 @@ for (int j = 0; j < equations_arr.GetLength(0); j++)
 }
 ```
 
-4. Send each list through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
+4. Each list is sent through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
 ```
 // Parallelize the processing of each list
 Parallel.ForEach(list, parallelOptions, delegate(List<uint> equation)
@@ -151,7 +151,7 @@ private static uint Func1(uint x, int n)
 }
 ```
 
-We know enough to turn this into an equation:
+This is enough information to turn `Func2()` into a readable equation:
 
 `Func2(coefficients, x, pos) = coefficients[pos] * x^pos + coefficients[pos-1] * x^pos-1 + ... coefficients[0] * x^0`
 
