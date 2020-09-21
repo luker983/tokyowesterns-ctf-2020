@@ -51,6 +51,8 @@ mono_unbundle Tamarin/lib/armeabi-v7a/libmonodroid_bundle_app.so dlls/
 
 Now that the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
 
+![decompile.png](images/decompile.png)
+
 Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
 
 Turns out to be some normalizing of numbers. Since we know what the final number should be,
