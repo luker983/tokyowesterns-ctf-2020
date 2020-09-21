@@ -61,7 +61,7 @@ The source has been recovered. At this point it should be straightforward to fig
 
 #### `Func4()` Walkthrough
 1. The input text is passed to `Func4()` to be validated.
-```
+```cs
 if (Check.Func4(((TextView)flagText).get_Text()))
 {
   ((TextView)flagText).set_Text("The flag is TWCTF{" + ((TextView)flagText).get_Text() + "}");
@@ -69,7 +69,7 @@ if (Check.Func4(((TextView)flagText).get_Text()))
 ```
 
 2. `Func4()` verifies that the length of the input string is 88
-```
+```cs
 // equations_arr.GetLength(0) is 22, 22 * 4 == 88
 if (array.Length != equations_arr.GetLength(0) * 4)
 {
@@ -78,7 +78,7 @@ if (array.Length != equations_arr.GetLength(0) * 4)
 ```
 
 3. 22 lists are constructed, each with 33 elements. The first element of each list is always a concatenation of the input bytes. For instance, `p@$$w0rd...` would turn into `list[0][0] = p@$$.ToUInt32(); list[1][0] = w0rd.ToUInt32();`. The next 32 elements come from a pre-defined array of integers called `equations_arr`
-```
+```cs
 // go through loop 22 times
 for (int j = 0; j < equations_arr.GetLength(0); j++)
 {
@@ -96,7 +96,7 @@ for (int j = 0; j < equations_arr.GetLength(0); j++)
 ```
 
 4. Each list is sent through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
-```
+```cs
 // Parallelize the processing of each list
 Parallel.ForEach(list, parallelOptions, delegate(List<uint> equation)
 {
@@ -123,7 +123,7 @@ All of the interesting stuff is happening in `Func2()`, let's take a look.
 #### `Func2()` And `Func1()` Walkthrough
 
 This function multiplies a value in the input list with the output of `Func1()` and add it to the recursive call of `Func2()` with coefficent index subtracted by one. 
-```
+```cs
 private static uint Func2(List<uint> coefficients, uint x, int pos)
 {
   // base case
@@ -138,7 +138,7 @@ private static uint Func2(List<uint> coefficients, uint x, int pos)
 
 We need to know what `Func1()` is doing to make sense of this. Luckily it's just a `pow` function!
 
-```
+```cs
 private static uint Func1(uint x, int n)
 {
   // raise x to the nth power
