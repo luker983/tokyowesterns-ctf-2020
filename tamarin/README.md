@@ -8,6 +8,7 @@
 
 * [Tamarin.7z](./Tamarin.7z) - Provided 7z file
   - [Tamarin.apk](./Tamarin.apk) - Challenge APK
+* [source](./source) - Source code recovered with mono_unbundle and ILSpy
 
 ## Solution
 
@@ -57,6 +58,7 @@ Now that the original DLLs have been extracted, they can be decompiled with a to
 
 The source has been recovered. At this point it should be straightforward to figure out what's going on.
 
+### `Func4()` Walkthrough
 1. The input text is passed to `Func4()` to be validated.
 ```
 if (Check.Func4(((TextView)flagText).get_Text()))
@@ -72,6 +74,47 @@ if (array.Length != equations_arr.GetLength(0) * 4)
 {
   return false;
 }
+```
+
+3. `Func4()` constructs 22 lists, each with 33 elements. The first element of each list is always a concatenation of the input bytes. For instance, `p@$$w0rd...` would turn into `list[0][0] = p@$$.ToUInt32(); list[1][0] = w0rd.ToUInt32();`. The next 32 elements come from a pre-defined array of integers called `equations_arr`
+```
+// go through loop 22 times
+for (int j = 0; j < equations_arr.GetLength(0); j++)
+	{
+    // new list
+		List<uint> list2 = new List<uint>();
+    // create uint from four input characters
+		list2.Add(BitConverter.ToUInt32(array, j * 4));
+    // copy remaining elements from equations_arr
+		for (int k = 0; k < equations_arr.GetLength(1); k++)
+		{
+			list2.Add(equations_arr[j, k]);
+		}
+		list.Add(list2);
+	}
+```
+
+4. Send each list through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
+```
+// Parallelize the processing of each list
+Parallel.ForEach(list, parallelOptions, delegate(List<uint> equation)
+{
+  lock (lockObj)
+	{
+    // random number generation
+		uint num = Func3();
+    // Stabilize num through many iterations of Func2()
+		for (int l = 0; l < 10000; l++)
+		{
+      // arguments are list, num, and list.Count - 2 (33 - 2 == 31)
+			num = Func2(equation, num, equation.Count - 2);
+		}
+    // compare stabilized value with last value of list (equation[32])
+		checkResults.Add(num == equation[equation.Count - 1]);
+	}
+});
+// all checks must pass for this to be the flag
+return checkResults.ToArray().All((bool x) => x);
 ```
 
 Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
