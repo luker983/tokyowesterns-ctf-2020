@@ -27,6 +27,19 @@ So I downloaded the Android 11 developer preview, made a new emulator with an up
 
 ![app.png](images/app.png)
 
+Submitting text changes the text to `Invalid`, suggesting that the goal of this challenge is to reverse engineer whatever validation function is checking input to recover the flag.
+
+## Decompilation
+
+Now that the app's behavior is known, the validation function needs to be analyzed. The `java` folder that Android Studio doesn't seem to contain anything useful. Athough it contains `mono` and `xamarin.android` directories. Xamarin and Mono are both .NET technologies, so the source of the program likely is not written in Java. The `cpp` directory is much more interesting. It contains many `.dll.so` files, one is named `libaot-Tamarin.dll.so`:
+
+```
+$ file libaot-Tamarin.dll.so
+
+```
+
+
+
 Success! Solution was to decompile with `apktool` then `mono_unbundle` then reverse the C#
 
 Turns out to be some normalizing of numbers. Since we know what the final number should be,
