@@ -51,7 +51,7 @@ apktool d Tamarin.apk
 mono_unbundle Tamarin/lib/armeabi-v7a/libmonodroid_bundle_app.so dlls/
 ```
 
-Now that the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
+Once the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
 
 ![decompile.png](images/decompile.png)
 
