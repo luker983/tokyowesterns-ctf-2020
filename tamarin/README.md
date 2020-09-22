@@ -8,7 +8,7 @@
 
 * [Tamarin.7z](./Tamarin.7z) - Provided 7z file
   - [Tamarin.apk](./Tamarin.apk) - Challenge APK
-* [source](./source) - Source code recovered with mono_unbundle and ILSpy
+* [source/](./source) - Source code recovered with mono_unbundle and ILSpy
 * [Solver.cs](./Solver.cs) - Flag derivation script
 
 ## Solution
