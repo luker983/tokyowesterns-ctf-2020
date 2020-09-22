@@ -15,9 +15,9 @@
 
 ### Emulation
 
-`7z x Tamarin.7z` extracts the only provided file: `Tamarin.apk`. Usually importing an APK into Android Studio and running it in an emulator is trivial, but in this case it was not. Attempting to run it resulted in this error:
+`7z x Tamarin.7z` extracts the only provided file: `Tamarin.apk`. Usually importing an APK into Android Studio and running it in an emulator is no problem, but in this case it required some extra steps. Attempting to run it resulted in this error:
 
-![abi.png](images/abi.png)
+<div align="center"><img src="images/abi.png"></div>
 
 Stack Overflow question https://stackoverflow.com/q/24572052 addresses this. We need to create a new emulator with the ABI `armeabi-v7a`. Unfortunately, using this ABI on an x86 host is incredibly slow. I couldn't get the emulator to boot in a reasonable amount of time and the app was not usable. 
 
@@ -27,11 +27,11 @@ After doing some digging, I found this post: https://android-developers.googlebl
 
 So I downloaded the Android 11 developer preview, made a new emulator with an updated SDK and system image, and imported the APK:
 
-![app.png](images/app.png)
+<div align="center"><img src="images/app.png"></div>
 
 Submitting text changes the text to `Invalid`, suggesting that the goal of this challenge is to reverse engineer whatever validation function is checking input to recover the flag.
 
-## Decompilation
+### Decompilation
 
 Now that the app's behavior is known, the validation function needs to be analyzed. The `java` folder that Android Studio doesn't contain anything interesting besidess `mono` and `xamarin.android` directories. Xamarin and Mono are both .NET technologies, so the source of the program likely is not written in Java. The `cpp` directory is much more interesting. It contains many `.dll.so` files, one is named `libaot-Tamarin.dll.so`:
 
@@ -51,17 +51,17 @@ apktool d Tamarin.apk
 mono_unbundle Tamarin/lib/armeabi-v7a/libmonodroid_bundle_app.so dlls/
 ```
 
-Now that the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
+Once the original DLLs have been extracted, they can be decompiled with a tool like https://github.com/icsharpcode/ILSpy. This tool perfectly decompiled `Tamarin.dll`!
 
-![decompile.png](images/decompile.png)
+<div align="center"><img src="images/decompile.png"></div>
 
-## Understanding The Source
+### Understanding The Source
 
 The source has been recovered. At this point it should be straightforward to figure out what's going on.
 
-### `Func4()` Walkthrough
+#### `Func4()` Walkthrough
 1. The input text is passed to `Func4()` to be validated.
-```
+```cs
 if (Check.Func4(((TextView)flagText).get_Text()))
 {
   ((TextView)flagText).set_Text("The flag is TWCTF{" + ((TextView)flagText).get_Text() + "}");
@@ -69,7 +69,7 @@ if (Check.Func4(((TextView)flagText).get_Text()))
 ```
 
 2. `Func4()` verifies that the length of the input string is 88
-```
+```cs
 // equations_arr.GetLength(0) is 22, 22 * 4 == 88
 if (array.Length != equations_arr.GetLength(0) * 4)
 {
@@ -77,8 +77,8 @@ if (array.Length != equations_arr.GetLength(0) * 4)
 }
 ```
 
-3. `Func4()` constructs 22 lists, each with 33 elements. The first element of each list is always a concatenation of the input bytes. For instance, `p@$$w0rd...` would turn into `list[0][0] = p@$$.ToUInt32(); list[1][0] = w0rd.ToUInt32();`. The next 32 elements come from a pre-defined array of integers called `equations_arr`
-```
+3. 22 lists are constructed, each with 33 elements. The first element of each list is always a concatenation of the input bytes. For instance, `p@$$w0rd...` would turn into `list[0][0] = p@$$.ToUInt32(); list[1][0] = w0rd.ToUInt32();`. The next 32 elements come from a pre-defined array of integers called `equations_arr`
+```cs
 // go through loop 22 times
 for (int j = 0; j < equations_arr.GetLength(0); j++)
 {
@@ -95,8 +95,8 @@ for (int j = 0; j < equations_arr.GetLength(0); j++)
 }
 ```
 
-4. Send each list through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
-```
+4. Each list is sent through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
+```cs
 // Parallelize the processing of each list
 Parallel.ForEach(list, parallelOptions, delegate(List<uint> equation)
 {
@@ -120,10 +120,10 @@ return checkResults.ToArray().All((bool x) => x);
 
 All of the interesting stuff is happening in `Func2()`, let's take a look.
 
-### `Func2()` And `Func1()` Walkthrough
+#### `Func2()` And `Func1()` Walkthrough
 
 This function multiplies a value in the input list with the output of `Func1()` and add it to the recursive call of `Func2()` with coefficent index subtracted by one. 
-```
+```cs
 private static uint Func2(List<uint> coefficients, uint x, int pos)
 {
   // base case
@@ -138,7 +138,7 @@ private static uint Func2(List<uint> coefficients, uint x, int pos)
 
 We need to know what `Func1()` is doing to make sense of this. Luckily it's just a `pow` function!
 
-```
+```cs
 private static uint Func1(uint x, int n)
 {
   // raise x to the nth power
@@ -151,7 +151,7 @@ private static uint Func1(uint x, int n)
 }
 ```
 
-We know enough to turn this into an equation:
+This is enough information to turn `Func2()` into a readable equation:
 
 `Func2(coefficients, x, pos) = coefficients[pos] * x^pos + coefficients[pos-1] * x^pos-1 + ... coefficients[0] * x^0`
 
@@ -170,4 +170,4 @@ Solving for the left-hand side of this equation gives the first four flag charac
 
 `TWCTF{Xm4r1n_15_4bl3_70_6en3r4t3_N471v3_C0d3_w17h_VS_3n73rpr153_bu7_17_c0n741n5_D07_N3t_B1n4ry}`
 
-![flag.png](images/flag.png)
+<div align="center"><img src="images/flag.png"></div>
