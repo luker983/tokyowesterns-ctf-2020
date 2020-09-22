@@ -95,7 +95,7 @@ for (int j = 0; j < equations_arr.GetLength(0); j++)
 }
 ```
 
-4. Each list is sent through `Func2()` with a random number 1000 times. After a certain number of iterations, the random numbers stabilize to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
+4. Each list is sent through `Func2()` with a random number 1000 times. After a certain number of iterations, the random number stabilizes to a deterministic value that depends on the input string. This was determined by setting the loop max to different high values (>30) and observing no change in the final `num`. Once the value settles, it is compared with the last element of the list. If the last element of every list matches its stabilized value from `Func2()`, the flag is correct
 ```cs
 // Parallelize the processing of each list
 Parallel.ForEach(list, parallelOptions, delegate(List<uint> equation)
