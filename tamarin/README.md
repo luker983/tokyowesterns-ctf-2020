@@ -122,7 +122,7 @@ All of the interesting stuff is happening in `Func2()`, let's take a look.
 
 #### `Func2()` And `Func1()` Walkthrough
 
-This function multiplies a value in the input list with the output of `Func1()` and add it to the recursive call of `Func2()` with coefficent index subtracted by one. 
+This function multiplies a value in the input list with the output of `Func1()` and adds it to the recursive call of `Func2()` with coefficent index subtracted by one. 
 ```cs
 private static uint Func2(List<uint> coefficients, uint x, int pos)
 {
